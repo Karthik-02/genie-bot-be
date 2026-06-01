@@ -1,0 +1,23 @@
+{
+  "name": "genie-bot-be",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Justo Genie backend",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "knowledge:validate": "python3 knowledge/validate_chunks.py --chunks knowledge/chunks.json",
+    "knowledge:embed": "python3 knowledge/embed_chunks.py --chunks knowledge/chunks.json --db-path knowledge/chroma_db --collection justo_knowledge --cache-dir knowledge/.model_cache --reset",
+    "knowledge:embed:download": "python3 knowledge/embed_chunks.py --chunks knowledge/chunks.json --db-path knowledge/chroma_db --collection justo_knowledge --cache-dir knowledge/.model_cache --reset --allow-downloads",
+    "knowledge:search": "python3 knowledge/search_chroma.py --db-path knowledge/chroma_db --cache-dir knowledge/.model_cache",
+    "smoke:health": "node scripts/smoke-health.js",
+    "smoke:chat": "node scripts/smoke-chat.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@google/genai": "^2.7.0",
+    "dotenv": "^17.4.2",
+    "fastify": "^5.8.5"
+  }
+}

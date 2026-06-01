@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Generated local vector database
+knowledge/chroma_db/
+
+# Downloaded embedding model cache
+knowledge/.model_cache/
