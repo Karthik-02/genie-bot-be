@@ -22,36 +22,73 @@ const INTEREST_PATTERNS = [
   ['Media and video', /\b(video|media|production|creative)\b/i],
 ];
 
-export function extractLeadSignals(message, visitor = {}, retrievedChunks = []) {
-  const retrievedText = retrievedChunks.map((chunk) => chunk.content).join(' ');
-  const combinedText = `${message} ${retrievedText}`;
-  const intent = INTENT_PATTERNS.find(([, pattern]) => pattern.test(message))?.[0] || 'general inquiry';
-  const sessionInterests = INTEREST_PATTERNS
-    .filter(([, pattern]) => pattern.test(combinedText))
-    .map(([interest]) => interest);
+function extractEmail(text) {
+  return text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] || '';
+}
 
-  const email = visitor.email || message.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0] || '';
-  const urgency = /\b(urgent|asap|immediately|this week|quickly|soon)\b/i.test(message)
+function extractPhone(text) {
+  return text.match(/(?:\+?\d[\d\s().-]{7,}\d)/)?.[0]?.trim() || '';
+}
+
+function extractBudgetSignals(text) {
+  const match = text.match(/\b(?:budget|cost|spend|range|around|under|over)\b.{0,40}(?:\$|₹|rs\.?|inr|usd)?\s?[\d,.]+[kKmM]?/i);
+  return match?.[0]?.trim() || '';
+}
+
+function interestFromChunks(chunks = []) {
+  const sourceText = chunks
+    .slice(0, 3)
+    .map((chunk) => `${chunk.metadata?.page || ''} ${chunk.metadata?.source || ''}`)
+    .join(' ');
+
+  return INTEREST_PATTERNS
+    .filter(([, pattern]) => pattern.test(sourceText))
+    .map(([interest]) => interest);
+}
+
+export function extractLeadSignals(message, visitor = {}, retrievedChunks = [], history = []) {
+  const historyText = history
+    .filter((item) => item.role === 'user')
+    .slice(-4)
+    .map((item) => item.content)
+    .join(' ');
+  const textForIntent = `${historyText} ${message}`;
+  const intent = INTENT_PATTERNS.find(([, pattern]) => pattern.test(textForIntent))?.[0] || 'general inquiry';
+  const sessionInterests = INTEREST_PATTERNS
+    .filter(([, pattern]) => pattern.test(textForIntent))
+    .map(([interest]) => interest)
+    .concat(interestFromChunks(retrievedChunks).slice(0, 2));
+
+  const email = visitor.email || extractEmail(message);
+  const phone = visitor.phone || extractPhone(message);
+  const budgetSignals = extractBudgetSignals(message);
+  const urgency = /\b(urgent|asap|immediately|this week|quickly|soon|today|tomorrow)\b/i.test(textForIntent)
     ? 'high'
-    : /\b(next month|quarter|planning|exploring)\b/i.test(message)
+    : /\b(next month|quarter|planning|exploring|evaluating)\b/i.test(textForIntent)
       ? 'medium'
       : 'unknown';
 
   const score =
     (email ? 25 : 0) +
     (visitor.company ? 15 : 0) +
+    (phone ? 10 : 0) +
+    (budgetSignals ? 10 : 0) +
     (intent !== 'general inquiry' ? 20 : 0) +
-    Math.min(sessionInterests.length * 10, 30) +
+    Math.min(new Set(sessionInterests).size * 10, 30) +
     (urgency === 'high' ? 10 : 0);
 
   return {
     email,
+    phone,
+    name: visitor.name || '',
+    company: visitor.company || '',
     intent,
     industry: ['education', 'healthcare', 'donor'].includes(intent) ? intent : '',
-    sessionInterests,
-    accumulatedInterests: sessionInterests,
+    sessionInterests: [...new Set(sessionInterests)],
+    accumulatedInterests: [...new Set(sessionInterests)],
     urgency,
-    score,
+    budgetSignals,
+    score: Math.min(score, 100),
   };
 }
 

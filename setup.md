@@ -45,9 +45,12 @@ KNOWLEDGE_COLLECTION=justo_knowledge
 KNOWLEDGE_MODEL=all-MiniLM-L6-v2
 KNOWLEDGE_CACHE_DIR=knowledge/.model_cache
 RETRIEVAL_TOP_K=5
+SQLITE_DB_PATH=data/justo-genie.sqlite
 ```
 
 If `GEMINI_API_KEY` is empty, `/chat` and `/stream` still work with a fallback response, but live AI answers are disabled.
+
+SQLite is used for local persistence. The database file is created automatically at `data/justo-genie.sqlite` when the backend starts.
 
 ## 4. Prepare The Knowledge Base
 
@@ -122,6 +125,21 @@ Chat:
 
 ```bash
 npm run smoke:chat
+```
+
+This verifies RAG, Gemini response generation, lead metadata, and grounded Level 9 recommendations.
+The response also includes Level 11 `agentBehavior` metadata for assist, qualification, or conversion behavior.
+
+History:
+
+```bash
+npm run smoke:history
+```
+
+Explicit lead capture:
+
+```bash
+npm run smoke:lead
 ```
 
 Manual streaming test:

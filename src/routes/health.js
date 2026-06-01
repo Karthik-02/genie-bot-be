@@ -16,6 +16,10 @@ export async function healthRoutes(app) {
         configured: app.llm.configured,
       },
       knowledge,
+      persistence: {
+        provider: 'sqlite',
+        ready: true,
+      },
     };
   });
 }

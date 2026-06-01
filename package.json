@@ -7,12 +7,15 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
+    "diagnose": "node scripts/diagnose.js",
     "knowledge:validate": "python3 knowledge/validate_chunks.py --chunks knowledge/chunks.json",
     "knowledge:embed": "python3 knowledge/embed_chunks.py --chunks knowledge/chunks.json --db-path knowledge/chroma_db --collection justo_knowledge --cache-dir knowledge/.model_cache --reset",
     "knowledge:embed:download": "python3 knowledge/embed_chunks.py --chunks knowledge/chunks.json --db-path knowledge/chroma_db --collection justo_knowledge --cache-dir knowledge/.model_cache --reset --allow-downloads",
     "knowledge:search": "python3 knowledge/search_chroma.py --db-path knowledge/chroma_db --cache-dir knowledge/.model_cache",
     "smoke:health": "node scripts/smoke-health.js",
-    "smoke:chat": "node scripts/smoke-chat.js"
+    "smoke:chat": "node scripts/smoke-chat.js",
+    "smoke:history": "node scripts/smoke-history.js",
+    "smoke:lead": "node scripts/smoke-lead.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

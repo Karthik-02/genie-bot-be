@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import { config } from './config.js';
 import { RetrievalService } from './services/retrieval.js';
 import { LlmService } from './services/llm.js';
+import { SqliteStore } from './db/sqlite.js';
 import { healthRoutes } from './routes/health.js';
 import { chatRoutes } from './routes/chat.js';
 
@@ -15,6 +16,7 @@ export function buildServer() {
 
   app.decorate('retrieval', new RetrievalService(app.log));
   app.decorate('llm', new LlmService());
+  app.decorate('store', new SqliteStore(config.sqliteDbPath, app.log));
 
   app.register(cors, { origin: config.corsOrigin });
   app.register(healthRoutes);
@@ -28,6 +30,7 @@ export function buildServer() {
     if (app.retrieval.worker) {
       app.retrieval.worker.kill();
     }
+    app.store.close();
   });
 
   return app;

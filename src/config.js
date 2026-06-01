@@ -17,6 +17,7 @@ export const config = {
   llmProvider: process.env.LLM_PROVIDER || 'gemini',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
+  sqliteDbPath: process.env.SQLITE_DB_PATH || 'data/justo-genie.sqlite',
   knowledge: {
     dbPath: process.env.KNOWLEDGE_DB_PATH || 'knowledge/chroma_db',
     collection: process.env.KNOWLEDGE_COLLECTION || 'justo_knowledge',

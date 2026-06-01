@@ -9,6 +9,7 @@ __pycache__/
 
 # Generated local vector database
 knowledge/chroma_db/
+data/
 
 # Downloaded embedding model cache
 knowledge/.model_cache/
